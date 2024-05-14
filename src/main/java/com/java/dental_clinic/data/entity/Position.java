@@ -1,6 +1,5 @@
 package com.java.dental_clinic.data.entity;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +10,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Role {
+public class Position {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

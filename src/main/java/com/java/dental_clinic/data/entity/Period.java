@@ -11,7 +11,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Role {
+public class Period {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
