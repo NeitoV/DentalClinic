@@ -24,8 +24,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
 
-        User user = userRepository.findByEmail(userName).orElseThrow(
-                () -> new ResourceNotFoundException(Collections.singletonMap("email: ", userName))
+        User user = userRepository.findByPhoneNumber(userName).orElseThrow(
+                () -> new ResourceNotFoundException(Collections.singletonMap("phone number: ", userName))
         );
 
         return UserDetailsImpl.build(user);

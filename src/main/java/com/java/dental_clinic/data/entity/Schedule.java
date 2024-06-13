@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -20,4 +21,12 @@ public class Schedule {
     private CalendarWorking calendarWorking;
 
     private String note;
+
+    private LocalDateTime date;
+
+    private boolean isConfirm;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient_id")
+    private Patient patient;
 }

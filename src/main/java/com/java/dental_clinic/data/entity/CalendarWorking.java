@@ -11,6 +11,9 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "calendar_working", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"date", "period_id", "staff_id"})
+})
 public class CalendarWorking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

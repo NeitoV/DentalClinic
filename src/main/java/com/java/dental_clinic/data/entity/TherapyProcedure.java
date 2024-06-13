@@ -23,6 +23,8 @@ public class TherapyProcedure {
     @JoinColumn(name = "treatment_id", nullable = false)
     private Treatment treatment;
 
+    private int count;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "medical_record_id", nullable = false)
     private MedicalRecord medicalRecord;

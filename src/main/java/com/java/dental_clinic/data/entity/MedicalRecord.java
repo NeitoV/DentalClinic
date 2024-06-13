@@ -19,11 +19,17 @@ public class MedicalRecord {
     @Column(nullable = false)
     private LocalDate examinationDate;
 
-    private LocalDate reExaminationDate;
-
     @Column(name = "diagnosis", columnDefinition = "NVARCHAR(250)", nullable = false)
     private String diagnosis;
 
     @Column(name = "note", columnDefinition = "NVARCHAR(250)")
     private String note;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient_id", nullable = false)
+    private Patient patient;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "staff_id", nullable = false)
+    private Staff staff;
 }
