@@ -11,6 +11,7 @@ import com.java.dental_clinic.data.maper.WorkingMapper;
 import com.java.dental_clinic.exception.AccessDeniedException;
 import com.java.dental_clinic.exception.ResourceNotFoundException;
 import com.java.dental_clinic.repostiory.PeriodRepository;
+import com.java.dental_clinic.repostiory.ScheduleRepository;
 import com.java.dental_clinic.repostiory.WorkingRepository;
 import com.java.dental_clinic.service.CalendarWorkingService;
 import com.java.dental_clinic.service.StaffService;
@@ -36,6 +37,8 @@ public class CalendarWorkingServiceImpl implements CalendarWorkingService {
     private PeriodRepository periodRepository;
     @Autowired
     private WorkingMapper workingMapper;
+    @Autowired
+    private ScheduleRepository scheduleRepository;
 
 
     @Override
@@ -72,9 +75,14 @@ public class CalendarWorkingServiceImpl implements CalendarWorkingService {
     public List<WorkingShowDTO> filter(String keyword, LocalDate date, Long periodId) {
 
         List<WorkingShowDTO> list = workingRepository.filter(date, keyword, periodId).stream()
-                .map(calendarWorking -> workingMapper.toDTOShow(calendarWorking))
-                .collect(Collectors.toList());
+                .map(calendarWorking -> {
+                    WorkingShowDTO workingShowDTO = workingMapper.toDTOShow(calendarWorking);
 
+                    workingShowDTO.setCountPatientScheduled(
+                            scheduleRepository.countByCalendarWorkingId(calendarWorking.getId()));
+
+                    return workingShowDTO;
+                }).collect(Collectors.toList());
 
         return list;
     }
@@ -84,9 +92,9 @@ public class CalendarWorkingServiceImpl implements CalendarWorkingService {
         Staff staff = staffService.getStaffByToken();
 
         CalendarWorking calendarWorking = workingRepository.findByPeriodIdAndStaffIdAndDate(
-               periodId, staff.getId(), date).orElseThrow(
-                        () -> new ResourceNotFoundException(
-                                Collections.singletonMap("message: ", "date and period don't exist")));
+                periodId, staff.getId(), date).orElseThrow(
+                () -> new ResourceNotFoundException(
+                        Collections.singletonMap("message: ", "date and period don't exist")));
 
         if (staff.getId() != calendarWorking.getStaff().getId()) {
             throw new AccessDeniedException(

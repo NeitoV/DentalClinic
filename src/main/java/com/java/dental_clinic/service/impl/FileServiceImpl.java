@@ -52,22 +52,22 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-        public Resource downloadFile(String fileName) {
+    public Resource downloadFile(String fileName) {
 
-            Path filePath = Paths.get(UPLOAD_DIR, fileName);
-            Resource resource = null;
+        Path filePath = Paths.get(UPLOAD_DIR, fileName);
+        Resource resource = null;
 
-            try {
-                resource = new UrlResource(filePath.toUri());
-                if (!resource.exists() || !resource.isReadable()) {
-                    new ResourceNotFoundException(Collections.singletonMap("fileName", fileName));
-                }
-            } catch (MalformedURLException e) {
+        try {
+            resource = new UrlResource(filePath.toUri());
+            if (!resource.exists() || !resource.isReadable()) {
                 new ResourceNotFoundException(Collections.singletonMap("fileName", fileName));
             }
-
-            return resource;
+        } catch (MalformedURLException e) {
+            new ResourceNotFoundException(Collections.singletonMap("fileName", fileName));
         }
+
+        return resource;
+    }
 
     @Override
     public void deleteFile(String fileName) {

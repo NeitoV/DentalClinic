@@ -13,5 +13,9 @@ public interface StaffService {
 
     PaginationDTO filterStaff(String keyword, int pageNumber, int pageSize, Long positionId);
 
+    PaginationDTO filterStaffForPatient(String keyword, int pageNumber, int pageSize);
+
     Staff getStaffByToken();
+
+    StaffDTO getStaff();
 }

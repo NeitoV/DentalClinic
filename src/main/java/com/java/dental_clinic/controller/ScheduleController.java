@@ -62,4 +62,12 @@ public class ScheduleController {
 
         return ResponseEntity.ok(scheduleService.confirmScheduleFalse(id));
     }
+
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PreAuthorize("hasAuthority('Role_Patient')")
+    @GetMapping("/patient")
+    public ResponseEntity<?> findScheduleByPatient() {
+
+        return ResponseEntity.ok(scheduleService.findScheduleByPatient());
+    }
 }

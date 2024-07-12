@@ -7,6 +7,7 @@ import com.java.dental_clinic.data.dto.staff.StaffDTO;
 import com.java.dental_clinic.data.entity.Position;
 import com.java.dental_clinic.data.entity.Staff;
 import com.java.dental_clinic.data.entity.User;
+import com.java.dental_clinic.data.enumeration.EPosition;
 import com.java.dental_clinic.data.enumeration.ERole;
 import com.java.dental_clinic.data.maper.StaffMapper;
 import com.java.dental_clinic.exception.ResourceNotFoundException;
@@ -79,6 +80,12 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
+    public PaginationDTO filterStaffForPatient(String keyword, int pageNumber, int pageSize) {
+
+        return filterStaff(keyword, pageNumber, pageSize, EPosition.positionDentist);
+    }
+
+    @Override
     public Staff getStaffByToken() {
         User user = userService.getUserByToken();
 
@@ -87,5 +94,13 @@ public class StaffServiceImpl implements StaffService {
         );
 
         return staff;
+    }
+
+    @Override
+    public StaffDTO getStaff() {
+
+        Staff staff = getStaffByToken();
+
+        return staffMapper.toDTO(staff);
     }
 }

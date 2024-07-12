@@ -40,7 +40,7 @@ public class StaffController {
     }
 
     @SecurityRequirement(name = "Bearer Authentication")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyAuthority('Role_Admin', 'Role_Staff')")
     @GetMapping("/filter")
     public ResponseEntity<?> filterStaff(@RequestParam(defaultValue = "0") int pageNumber,
                                          @RequestParam(defaultValue = "10") int pageSize,
@@ -50,4 +50,21 @@ public class StaffController {
         return ResponseEntity.ok(staffService.filterStaff(keyword, pageNumber, pageSize, positionId));
     }
 
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("patient/filter")
+    public ResponseEntity<?> filterStaffForPatient(@RequestParam(defaultValue = "0") int pageNumber,
+                                         @RequestParam(defaultValue = "10") int pageSize,
+                                         @RequestParam(defaultValue = "") String keyword) {
+
+        return ResponseEntity.ok(staffService.filterStaffForPatient(keyword, pageNumber, pageSize));
+    }
+
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/token")
+    public ResponseEntity<?> getStaffByToken() {
+
+        return ResponseEntity.ok(staffService.getStaffByToken());
+    }
 }

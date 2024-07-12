@@ -1,5 +1,6 @@
 package com.java.dental_clinic.service;
 
+import com.java.dental_clinic.data.dto.ChangePasswordDTO;
 import com.java.dental_clinic.data.dto.JwtResponseDTO;
 import com.java.dental_clinic.data.dto.LoginDTO;
 import com.java.dental_clinic.data.dto.MessageResponse;
@@ -18,4 +19,8 @@ public interface UserService {
     MessageResponse sendMailActiveUser(@Email String email) throws MessagingException;
 
     MessageResponse activeEmail(String email, String otp);
+
+    MessageResponse changePassword(ChangePasswordDTO changePasswordDTO);
+
+    void checkStaff(Long staffId);
 }

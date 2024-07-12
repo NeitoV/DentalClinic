@@ -1,15 +1,19 @@
 package com.java.dental_clinic.service.impl;
 
+import com.java.dental_clinic.data.dto.ChangePasswordDTO;
 import com.java.dental_clinic.data.dto.JwtResponseDTO;
 import com.java.dental_clinic.data.dto.LoginDTO;
 import com.java.dental_clinic.data.dto.MessageResponse;
 import com.java.dental_clinic.data.entity.Role;
+import com.java.dental_clinic.data.entity.Staff;
 import com.java.dental_clinic.data.entity.User;
+import com.java.dental_clinic.data.enumeration.ERole;
 import com.java.dental_clinic.data.maper.UserMapper;
 import com.java.dental_clinic.exception.AccessDeniedException;
 import com.java.dental_clinic.exception.ConflictException;
 import com.java.dental_clinic.exception.ResourceNotFoundException;
 import com.java.dental_clinic.repostiory.RoleRepository;
+import com.java.dental_clinic.repostiory.StaffRepository;
 import com.java.dental_clinic.repostiory.UserRepository;
 import com.java.dental_clinic.service.JwtService;
 import com.java.dental_clinic.service.MailService;
@@ -45,6 +49,8 @@ public class UserServiceImpl implements UserService {
     private UserMapper userMapper;
     @Autowired
     private MailService mailService;
+    @Autowired
+    private StaffRepository staffRepository;
 
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final int OTP_LENGTH = 6;
@@ -54,6 +60,14 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByPhoneNumber(loginDTO.getUserName()).orElseThrow(
                 () -> new ResourceNotFoundException(Collections.singletonMap("phone number: ", loginDTO.getUserName()))
         );
+        String position = null;
+        if(user.getRole().getId() == ERole.roleStaff) {
+            Staff staff = staffRepository.findByUserId(user.getId()).orElseThrow(
+                    () -> new ResourceNotFoundException(Collections.singletonMap("message: ", "staff isn't exists"))
+            );
+
+            position = staff.getPosition().getName();
+        }
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(loginDTO.getUserName());
 
@@ -70,7 +84,7 @@ public class UserServiceImpl implements UserService {
 
         String jwt = jwtService.generateToken(userDetails);
 
-        return new JwtResponseDTO(jwt, loginDTO.getUserName(), role.getName());
+        return new JwtResponseDTO(jwt, loginDTO.getUserName(), role.getName(), position, user.getEmail());
     }
 
     @Override
@@ -100,6 +114,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public MessageResponse sendMailActiveUser(String email) throws MessagingException {
+        if(userRepository.existsByEmail(email)) {
+            throw new ConflictException(Collections.singletonMap("email: ", email));
+        }
+
         User user = getUserByToken();
         String otp = generateOTP(OTP_LENGTH);
 
@@ -129,6 +147,34 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
 
         return new MessageResponse(HttpServletResponse.SC_OK, "successfully");
+    }
+
+    @Override
+    public MessageResponse changePassword(ChangePasswordDTO changePasswordDTO) {
+        User user = getUserByToken();
+
+        if(!checkValidPassword(changePasswordDTO.getOldPassword(), user.getPassword())) {
+            throw new AccessDeniedException(Collections.singletonMap("message: ", "password isn't correct"));
+        }
+
+        user.setPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
+        userRepository.save(user);
+
+        return new MessageResponse(HttpServletResponse.SC_OK, "successfully");
+    }
+
+    @Override
+    public void checkStaff(Long staffId) {
+        User user = getUserByToken();
+        if(user.getRole().getId() == ERole.roleStaff) {
+            Staff staff = staffRepository.findByUserId(user.getId()).orElseThrow(
+                    () -> new ResourceNotFoundException(Collections.singletonMap("message: ", "staff isn't exists"))
+            );
+
+            if(staff.getId() != staffId) {
+                throw new AccessDeniedException(Collections.singletonMap("message: ", "this is not yours"));
+            }
+        }
     }
 
     private Boolean checkValidPassword(String password, String passwordEncoded) {

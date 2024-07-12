@@ -24,7 +24,7 @@ public class Patient {
     @Column(name = "address", columnDefinition = "NVARCHAR(100)", nullable = false)
     private String address;
 
-    private boolean gender;
+//    private boolean gender;
 
     @Column(name = "medical_history", columnDefinition = "NVARCHAR(250)")
     private String medicalHistory;

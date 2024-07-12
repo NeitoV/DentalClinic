@@ -13,4 +13,5 @@ public class WorkingShowDTO {
     private Long id;
     private WorkingDTO workingDTO;
     private StaffDTO staffDTO;
+    private int countPatientScheduled;
 }

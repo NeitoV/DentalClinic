@@ -13,4 +13,11 @@ public interface MedicalRecordService {
     MessageResponse createMedicalRecord(RecordCreationDTO recordCreationDTO);
 
     List<RecordShowDTO> findByPatientId(Long patientId);
+
+    @Transactional
+    MessageResponse deleteRecord(Long recordId);
+
+    MessageResponse updateStatusDone(Long recordId);
+
+    MessageResponse reOpenMedicalRecord(Long recordId);
 }

@@ -31,4 +31,28 @@ public class RecordController {
 
         return ResponseEntity.ok(medicalRecordService.findByPatientId(id));
     }
+
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PreAuthorize("hasAuthority('Role_Staff')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteRecord(@PathVariable Long id) {
+
+        return ResponseEntity.ok(medicalRecordService.deleteRecord(id));
+    }
+
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PreAuthorize("hasAuthority('Role_Staff')")
+    @PutMapping("/done/{id}")
+    public ResponseEntity<?> updateStatusDone(@PathVariable Long id) {
+
+        return ResponseEntity.ok(medicalRecordService.updateStatusDone(id));
+    }
+
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PreAuthorize("hasAuthority('Role_Staff')")
+    @PutMapping("/reopen/{id}")
+    public ResponseEntity<?> reOpenRecord(@PathVariable Long id) {
+
+        return ResponseEntity.ok(medicalRecordService.reOpenMedicalRecord(id));
+    }
 }

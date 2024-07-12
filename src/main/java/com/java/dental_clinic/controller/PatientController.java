@@ -1,5 +1,6 @@
 package com.java.dental_clinic.controller;
 
+import com.java.dental_clinic.data.dto.ChangePasswordDTO;
 import com.java.dental_clinic.data.dto.patient.PatientCreationDTO;
 import com.java.dental_clinic.data.dto.patient.PatientDTO;
 import com.java.dental_clinic.service.PatientService;
@@ -47,23 +48,4 @@ public class PatientController {
 
         return ResponseEntity.ok(patientService.filterPatient(keyword, pageNumber, pageSize));
     }
-
-    @SecurityRequirement(name = "Bearer Authentication")
-    @PreAuthorize("isAuthenticated()")
-    @GetMapping("/mail/send")
-    public ResponseEntity<?> sendMailActive(@RequestBody String email) throws MessagingException {
-
-        return ResponseEntity.ok(userService.sendMailActiveUser(email));
-    }
-
-    @SecurityRequirement(name = "Bearer Authentication")
-    @PreAuthorize("isAuthenticated()")
-    @PutMapping("/mail/active")
-    public ResponseEntity<?> activeEmail(@RequestBody Map<String, String> mailConfirm) {
-        String email = mailConfirm.get("email");
-        String otp = mailConfirm.get("otp");
-
-        return ResponseEntity.ok(userService.activeEmail(email, otp));
-    }
-
 }

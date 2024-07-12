@@ -4,6 +4,7 @@ import com.java.dental_clinic.data.dto.*;
 import com.java.dental_clinic.data.entity.*;
 import com.java.dental_clinic.data.enumeration.EPosition;
 import com.java.dental_clinic.data.enumeration.ERole;
+import com.java.dental_clinic.data.enumeration.EStatus;
 import com.java.dental_clinic.data.maper.ProcedureMapper;
 import com.java.dental_clinic.data.maper.RecordMapper;
 import com.java.dental_clinic.exception.AccessDeniedException;
@@ -64,6 +65,7 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
         medicalRecord.setExaminationDate(LocalDate.now());
         medicalRecord.setStaff(staff);
         medicalRecord.setPatient(patient);
+        medicalRecord.setStatus(EStatus.ONGOING.toString());
 
         MedicalRecord saved = recordRepository.save(medicalRecord);
 
@@ -94,4 +96,48 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
 
         return list;
     }
+
+    @Override
+    public MessageResponse deleteRecord(Long recordId) {
+        MedicalRecord record = recordRepository.findById(recordId).orElseThrow(
+                () -> new ResourceNotFoundException(Collections.singletonMap("id: ", recordId))
+        );
+
+        userService.checkStaff(record.getStaff().getId());
+
+        procedureRepository.deleteAllByMedicalRecordId(recordId);
+        recordRepository.deleteById(recordId);
+
+        return new MessageResponse(HttpServletResponse.SC_OK, "successfully");
+    }
+
+    @Override
+    public MessageResponse updateStatusDone(Long recordId) {
+        MedicalRecord record = recordRepository.findById(recordId).orElseThrow(
+                () -> new ResourceNotFoundException(Collections.singletonMap("id: ", recordId))
+        );
+
+        userService.checkStaff(record.getStaff().getId());
+
+        record.setStatus(EStatus.DONE.toString());
+        recordRepository.save(record);
+
+        return new MessageResponse(HttpServletResponse.SC_OK, "successfully");
+    }
+
+    @Override
+    public MessageResponse reOpenMedicalRecord(Long recordId) {
+        MedicalRecord record = recordRepository.findById(recordId).orElseThrow(
+                () -> new ResourceNotFoundException(Collections.singletonMap("id: ", recordId))
+        );
+
+        userService.checkStaff(record.getStaff().getId());
+
+        record.setStatus(EStatus.ONGOING.toString());
+        recordRepository.save(record);
+
+        return new MessageResponse(HttpServletResponse.SC_OK, "successfully");
+    }
+
+
 }

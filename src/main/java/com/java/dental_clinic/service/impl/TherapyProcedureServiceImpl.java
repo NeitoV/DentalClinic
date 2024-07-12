@@ -8,6 +8,7 @@ import com.java.dental_clinic.data.entity.MedicalRecord;
 import com.java.dental_clinic.data.entity.Staff;
 import com.java.dental_clinic.data.entity.TherapyProcedure;
 import com.java.dental_clinic.data.entity.Treatment;
+import com.java.dental_clinic.data.enumeration.EStatus;
 import com.java.dental_clinic.data.maper.ProcedureMapper;
 import com.java.dental_clinic.data.maper.RecordMapper;
 import com.java.dental_clinic.exception.AccessDeniedException;
@@ -64,6 +65,9 @@ public class TherapyProcedureServiceImpl implements TherapyProcedureService {
         MedicalRecord medicalRecord = recordRepository.findById(recordId).orElseThrow(
                 () -> new ResourceNotFoundException(Collections.singletonMap("record id: ", recordId))
         );
+        if(medicalRecord.getStatus().equals(EStatus.DONE.toString())) {
+            throw new AccessDeniedException(Collections.singletonMap("message: ", "can't update record done"));
+        }
 
         Staff staff = staffService.getStaffByToken();
         if(staff.getId() != medicalRecord.getStaff().getId()) {
@@ -91,6 +95,10 @@ public class TherapyProcedureServiceImpl implements TherapyProcedureService {
         TherapyProcedure procedure = procedureRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException(Collections.singletonMap("procedure id: ", id))
         );
+
+        if(procedure.getMedicalRecord().getStatus().equals(EStatus.DONE.toString())) {
+            throw new AccessDeniedException(Collections.singletonMap("message: ", "can't update record done"));
+        }
 
         Staff staff = staffService.getStaffByToken();
         if(staff.getId() != procedure.getMedicalRecord().getStaff().getId()) {

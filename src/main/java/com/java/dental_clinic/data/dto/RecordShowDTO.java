@@ -13,6 +13,7 @@ import java.time.LocalDate;
 public class RecordShowDTO {
     private Long id;
     private String diagnosis;
+    private String status;
     private LocalDate examinationDate;
     private StaffDTO staffDTO;
 }

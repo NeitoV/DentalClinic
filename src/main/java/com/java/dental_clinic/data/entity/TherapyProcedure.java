@@ -31,4 +31,8 @@ public class TherapyProcedure {
 
     @Column(columnDefinition = "NVARCHAR(250)")
     private String note;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "objectives_id")
+    private Objectives objectives;
 }

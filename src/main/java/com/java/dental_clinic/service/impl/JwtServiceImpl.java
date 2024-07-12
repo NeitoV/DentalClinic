@@ -1,5 +1,6 @@
-package com.java.dental_clinic.service;
+package com.java.dental_clinic.service.impl;
 
+import com.java.dental_clinic.service.JwtService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;

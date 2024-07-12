@@ -9,4 +9,7 @@ import java.util.List;
 @Repository
 public interface ProcedureRepository extends JpaRepository<TherapyProcedure, Long> {
     List<TherapyProcedure> findAllByMedicalRecordId(Long medicalRecordId);
+
+
+    void deleteAllByMedicalRecordId(Long medicalRecordId);
 }
