@@ -23,4 +23,10 @@ public interface UserService {
     MessageResponse changePassword(ChangePasswordDTO changePasswordDTO);
 
     void checkStaff(Long staffId);
+
+    MessageResponse sendMailForgetPassword(@Email String email) throws MessagingException;
+
+    Boolean checkOTPForgetPassword(String otp, @Email String email);
+
+    MessageResponse changePasswordForget(String newPassword, @Email String email);
 }

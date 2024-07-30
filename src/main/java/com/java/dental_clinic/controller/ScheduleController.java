@@ -66,8 +66,8 @@ public class ScheduleController {
     @SecurityRequirement(name = "Bearer Authentication")
     @PreAuthorize("hasAuthority('Role_Patient')")
     @GetMapping("/patient")
-    public ResponseEntity<?> findScheduleByPatient() {
+    public ResponseEntity<?> findScheduleByPatient(@RequestParam(required = false) Boolean isConfirm) {
 
-        return ResponseEntity.ok(scheduleService.findScheduleByPatient());
+        return ResponseEntity.ok(scheduleService.findScheduleByPatient(isConfirm));
     }
 }

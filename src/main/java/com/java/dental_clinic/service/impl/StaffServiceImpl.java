@@ -90,7 +90,7 @@ public class StaffServiceImpl implements StaffService {
         User user = userService.getUserByToken();
 
         Staff staff = staffRepository.findByUserId(user.getId()).orElseThrow(
-                () -> new ResourceNotFoundException(Collections.singletonMap("message: ", "user isn't existed"))
+                () -> new ResourceNotFoundException(Collections.singletonMap("message", "user isn't existed"))
         );
 
         return staff;

@@ -17,5 +17,8 @@ public interface TreatmentRepository extends JpaRepository<Treatment, Long> {
             "CASE WHEN :sortOrder = 'asc' THEN t.cost END ASC, " +
             "CASE WHEN :sortOrder = 'desc' THEN t.cost END DESC, " +
             "CASE WHEN :sortOrder = '' THEN 1 END")
-    List<Treatment> filter(@Param("keyword") String keyword, @Param("serviceId") Long serviceId, @Param("sortOrder") String sortOrder);
+    List<Treatment> filter(@Param("keyword") String keyword, @Param("serviceId") Long serviceId,
+                           @Param("sortOrder") String sortOrder);
+
+    boolean existsByServiceId(Long serviceId);
 }

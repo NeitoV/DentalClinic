@@ -1,7 +1,7 @@
 package com.java.dental_clinic.data.maper;
 
-import com.java.dental_clinic.data.dto.ProcedureCreationDTO;
-import com.java.dental_clinic.data.dto.ProcedureShowDTO;
+import com.java.dental_clinic.data.dto.procedure.ProcedureCreationDTO;
+import com.java.dental_clinic.data.dto.procedure.ProcedureShowDTO;
 import com.java.dental_clinic.data.entity.TherapyProcedure;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

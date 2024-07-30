@@ -15,4 +15,6 @@ public interface CalendarWorkingService {
     MessageResponse deleteWorkingCalendar(Long periodId, LocalDate date);
 
     List<WorkingDTOWithID> findByWeek(int year, int week);
+
+    LocalDate[] getStartAndEndDate(int year, int week);
 }

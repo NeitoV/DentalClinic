@@ -50,7 +50,7 @@ public class CalendarWorkingServiceImpl implements CalendarWorkingService {
             if (workingRepository.existsByPeriodIdAndDateAndStaffId( //check existed
                     workingDTO.getPeriodId(), workingDTO.getDate(), staff.getId()))
                 throw new AccessDeniedException(
-                        Collections.singletonMap("message: ", "there have a existed date and period"));
+                        Collections.singletonMap("message", "there have a existed date and period"));
             else { //create new
 
                 CalendarWorking calendarWorking = new CalendarWorking();
@@ -79,7 +79,7 @@ public class CalendarWorkingServiceImpl implements CalendarWorkingService {
                     WorkingShowDTO workingShowDTO = workingMapper.toDTOShow(calendarWorking);
 
                     workingShowDTO.setCountPatientScheduled(
-                            scheduleRepository.countByCalendarWorkingId(calendarWorking.getId()));
+                            scheduleRepository.countByCalendarWorkingIdAndConfirmTrue(calendarWorking.getId()));
 
                     return workingShowDTO;
                 }).collect(Collectors.toList());
@@ -94,11 +94,11 @@ public class CalendarWorkingServiceImpl implements CalendarWorkingService {
         CalendarWorking calendarWorking = workingRepository.findByPeriodIdAndStaffIdAndDate(
                 periodId, staff.getId(), date).orElseThrow(
                 () -> new ResourceNotFoundException(
-                        Collections.singletonMap("message: ", "date and period don't exist")));
+                        Collections.singletonMap("message", "date and period don't exist")));
 
         if (staff.getId() != calendarWorking.getStaff().getId()) {
             throw new AccessDeniedException(
-                    Collections.singletonMap("message: ", "you can't delete someone else's working calendar"));
+                    Collections.singletonMap("message", "you can't delete someone else's working calendar"));
         }
 
         workingRepository.delete(calendarWorking);
@@ -110,6 +110,19 @@ public class CalendarWorkingServiceImpl implements CalendarWorkingService {
     public List<WorkingDTOWithID> findByWeek(int year, int week) {
         Staff staff = staffService.getStaffByToken();
 
+        LocalDate[] dates = getStartAndEndDate(year, week);
+        LocalDate startDate = dates[0];
+        LocalDate endDate = dates[1];
+
+        List<WorkingDTOWithID> list = workingRepository.findByDateRangeAndStaffId(startDate, endDate, staff.getId())
+                .stream()
+                .map(calendarWorking -> workingMapper.toDTO(calendarWorking))
+                .collect(Collectors.toList());
+
+        return list;
+    }
+
+    public LocalDate[] getStartAndEndDate(int year, int week) {
         WeekFields weekFields = WeekFields.of(DayOfWeek.MONDAY, 1);
         LocalDate firstDayOfYear = LocalDate.of(year, 1, 1);
 
@@ -120,12 +133,7 @@ public class CalendarWorkingServiceImpl implements CalendarWorkingService {
 
         LocalDate endDate = startDate.plusDays(6);
 
-        List<WorkingDTOWithID> list = workingRepository.findByDateRangeAndStaffId(startDate, endDate, staff.getId())
-                .stream()
-                .map(calendarWorking -> workingMapper.toDTO(calendarWorking))
-                .collect(Collectors.toList());
-
-        return list;
+        return new LocalDate[] { startDate, endDate };
     }
 
 

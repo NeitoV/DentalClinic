@@ -61,10 +61,10 @@ public class StaffController {
     }
 
     @SecurityRequirement(name = "Bearer Authentication")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAuthority('Role_Staff')")
     @GetMapping("/token")
     public ResponseEntity<?> getStaffByToken() {
 
-        return ResponseEntity.ok(staffService.getStaffByToken());
+        return ResponseEntity.ok(staffService.getStaff());
     }
 }

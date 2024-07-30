@@ -4,12 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProcedureShowDTO {
-    private Long id;
-    private TreatmentDTO treatmentDTO;
-    private int count;
-    private String note;
+public class RevenueDTO {
+    private String information;
+    private BigDecimal revenue;
 }

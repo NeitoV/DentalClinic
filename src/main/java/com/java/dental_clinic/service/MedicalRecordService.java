@@ -1,9 +1,10 @@
 package com.java.dental_clinic.service;
 
 import com.java.dental_clinic.data.dto.MessageResponse;
-import com.java.dental_clinic.data.dto.ProcedureShowDTO;
+import com.java.dental_clinic.data.dto.ObjectivesCreationDTO;
 import com.java.dental_clinic.data.dto.RecordCreationDTO;
 import com.java.dental_clinic.data.dto.RecordShowDTO;
+import com.java.dental_clinic.data.entity.MedicalRecord;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -20,4 +21,8 @@ public interface MedicalRecordService {
     MessageResponse updateStatusDone(Long recordId);
 
     MessageResponse reOpenMedicalRecord(Long recordId);
+
+    void createListObjectives(List<ObjectivesCreationDTO> objectivesCreationDTOS, MedicalRecord record);
+
+    List<RecordShowDTO> findByToken();
 }

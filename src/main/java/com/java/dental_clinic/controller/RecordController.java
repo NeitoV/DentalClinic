@@ -33,6 +33,14 @@ public class RecordController {
     }
 
     @SecurityRequirement(name = "Bearer Authentication")
+    @PreAuthorize("hasAuthority('Role_Patient')")
+    @GetMapping("/token")
+    public ResponseEntity<?> findByToken() {
+
+        return ResponseEntity.ok(medicalRecordService.findByToken());
+    }
+
+    @SecurityRequirement(name = "Bearer Authentication")
     @PreAuthorize("hasAuthority('Role_Staff')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteRecord(@PathVariable Long id) {

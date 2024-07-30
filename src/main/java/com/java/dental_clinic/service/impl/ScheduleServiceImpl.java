@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,11 +51,12 @@ public class ScheduleServiceImpl implements ScheduleService {
     public MessageResponse createScheduleForPatient(Long workingId, String note) {
         Patient patient = patientService.getPatientByToken();
         if (patient.getUser().getEmail() == null) {
-            throw new AccessDeniedException(Collections.singletonMap("message: ", "please active email"));
+            throw new AccessDeniedException(Collections.singletonMap("message", "please active email"));
         }
 
         Schedule schedule = createSchedule(workingId, note, false);
         schedule.setPatient(patient);
+        schedule.setDate(LocalDateTime.now());
 
         scheduleRepository.save(schedule);
 
@@ -146,10 +148,10 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public List<ScheduleDTO> findScheduleByPatient() {
+    public List<ScheduleDTO> findScheduleByPatient(Boolean isConfirm) {
         Patient patient = patientService.getPatientByToken();
 
-        return scheduleRepository.findAllByPatientId(patient.getId())
+        return scheduleRepository.findForPatient(patient.getId(), isConfirm)
                 .stream()
                 .map(schedule -> scheduleMapper.toDTO(schedule))
                 .collect(Collectors.toList());
@@ -159,12 +161,12 @@ public class ScheduleServiceImpl implements ScheduleService {
         User user = userService.getUserByToken();
         if(user.getRole().getId() == ERole.roleStaff ) {
             Staff staff = staffRepository.findByUserId(user.getId()).orElseThrow(
-                    () -> new ResourceNotFoundException(Collections.singletonMap("message: ", "staff not exists"))
+                    () -> new ResourceNotFoundException(Collections.singletonMap("message", "staff not exists"))
             );
 
             if(staff.getPosition().getId() == EPosition.positionDentist) {
                 if(staffId != staff.getId()) {
-                    throw  new AccessDeniedException(Collections.singletonMap("message: ", "this is not yours"));
+                    throw  new AccessDeniedException(Collections.singletonMap("message", "this is not yours"));
                 }
             }
         }

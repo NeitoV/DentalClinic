@@ -1,8 +1,6 @@
 package com.java.dental_clinic.controller;
 
-import com.java.dental_clinic.data.dto.ProcedureCreationDTO;
-import com.java.dental_clinic.data.dto.RecordCreationDTO;
-import com.java.dental_clinic.data.dto.WorkingDTO;
+import com.java.dental_clinic.data.dto.procedure.ProcedureCreationDTO;
 import com.java.dental_clinic.service.TherapyProcedureService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,16 +28,16 @@ public class ProcedureController {
         return ResponseEntity.ok(therapyProcedureService.findByMedicalRecordId(id));
     }
 
-    @SecurityRequirement(name = "Bearer Authentication")
-    @PreAuthorize("hasAuthority('Role_Staff')")
-    @PostMapping("/record/{id}")
-    public ResponseEntity<?> createProcedureForMedicalRecord(@PathVariable Long id,
-                                                             @RequestBody Map<String, List<ProcedureCreationDTO>> list) {
-
-        List<ProcedureCreationDTO> dtos = list.get("procedures");
-
-        return new ResponseEntity<>(therapyProcedureService.createTherapyProcedure(id, dtos), HttpStatus.CREATED);
-    }
+//    @SecurityRequirement(name = "Bearer Authentication")
+//    @PreAuthorize("hasAuthority('Role_Staff')")
+//    @PostMapping("/record/{id}")
+//    public ResponseEntity<?> createProcedureForMedicalRecord(@PathVariable Long id,
+//                                                             @RequestBody Map<String, List<ProcedureCreationDTO>> list) {
+//
+//        List<ProcedureCreationDTO> dtos = list.get("procedures");
+//
+//        return new ResponseEntity<>(therapyProcedureService.createTherapyProcedure(id, dtos), HttpStatus.CREATED);
+//    }
 
     @SecurityRequirement(name = "Bearer Authentication")
     @PreAuthorize("hasAuthority('Role_Staff')")
@@ -47,5 +45,31 @@ public class ProcedureController {
     public ResponseEntity<?> deleteTherapyProcedure(@PathVariable Long id) {
 
         return ResponseEntity.ok(therapyProcedureService.deleteTherapyProcedure(id));
+    }
+
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PreAuthorize("hasAuthority('Role_Staff')")
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateProcedure(@PathVariable Long id,
+                                             @RequestBody ProcedureCreationDTO dto) {
+
+        return new ResponseEntity<>(therapyProcedureService.updateTherapyProcedure(id, dto), HttpStatus.OK);
+    }
+
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/objective/{id}")
+    public ResponseEntity<?> findByReObjectiveId(@PathVariable Long id) {
+
+        return ResponseEntity.ok(therapyProcedureService.findByObjectiveId(id));
+    }
+
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PreAuthorize("hasAuthority('Role_Staff')")
+    @PostMapping("/objective/{id}")
+    public ResponseEntity<?> createProcedureByObjectiveId(@PathVariable Long id,
+                                                          @RequestBody List<ProcedureCreationDTO> list) {
+
+        return  new ResponseEntity<>(therapyProcedureService.createProcedureByObjectId(id, list), HttpStatus.CREATED);
     }
 }

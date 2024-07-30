@@ -4,14 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TreatmentDTO {
-    private Long id;
+@Data
+public class TreatmentCreationDTO {
     private int cost;
     private String name;
     private String note;
     private String unit;
-    private ServiceDTO serviceDTO;
+    private Long serviceId;
 }

@@ -5,14 +5,12 @@ import com.java.dental_clinic.data.entity.*;
 import com.java.dental_clinic.data.enumeration.EPosition;
 import com.java.dental_clinic.data.enumeration.ERole;
 import com.java.dental_clinic.data.enumeration.EStatus;
+import com.java.dental_clinic.data.maper.ObjectiveMapper;
 import com.java.dental_clinic.data.maper.ProcedureMapper;
 import com.java.dental_clinic.data.maper.RecordMapper;
 import com.java.dental_clinic.exception.AccessDeniedException;
 import com.java.dental_clinic.exception.ResourceNotFoundException;
-import com.java.dental_clinic.repostiory.PatientRepository;
-import com.java.dental_clinic.repostiory.ProcedureRepository;
-import com.java.dental_clinic.repostiory.RecordRepository;
-import com.java.dental_clinic.repostiory.TreatmentRepository;
+import com.java.dental_clinic.repostiory.*;
 import com.java.dental_clinic.service.MedicalRecordService;
 import com.java.dental_clinic.service.StaffService;
 import com.java.dental_clinic.service.TherapyProcedureService;
@@ -47,13 +45,17 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
     private UserService userService;
     @Autowired
     private TherapyProcedureService therapyProcedureService;
+    @Autowired
+    private ObjectiveMapper objectiveMapper;
+    @Autowired
+    private ObjectiveRepository objectiveRepository;
 
     @Override
     public MessageResponse createMedicalRecord(RecordCreationDTO recordCreationDTO) {
 
         Staff staff = staffService.getStaffByToken();
         if (staff.getPosition().getId() != EPosition.positionDentist) {
-            throw new AccessDeniedException(Collections.singletonMap("message: ", "you aren't a dentist"));
+            throw new AccessDeniedException(Collections.singletonMap("message", "you aren't a dentist"));
         }
 
         Patient patient = patientRepository.findById(recordCreationDTO.getPatientId()).orElseThrow(
@@ -69,10 +71,7 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
 
         MedicalRecord saved = recordRepository.save(medicalRecord);
 
-        List<TherapyProcedure> list = therapyProcedureService.mapCreationProcedure(
-                saved, recordCreationDTO.getProcedureCreationDTOS());
-
-        procedureRepository.saveAll(list);
+       createListObjectives(recordCreationDTO.getObjectivesCreationDTOS(), saved);
 
         return new MessageResponse(HttpServletResponse.SC_CREATED, "successfully");
     }
@@ -85,9 +84,9 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
 
         User user = userService.getUserByToken();
 
-        if(user.getRole().getId() == ERole.rolePatient && patient.getUser().getId() != user.getId()) {
+        if (user.getRole().getId() == ERole.rolePatient && patient.getUser().getId() != user.getId()) {
             throw new AccessDeniedException(
-                    Collections.singletonMap("message: ", "You are not allowed to view someone else's medical records"));
+                    Collections.singletonMap("message", "You are not allowed to view someone else's medical records"));
         }
 
         List<RecordShowDTO> list = recordRepository.findAllByPatientId(patientId).stream().map(
@@ -105,7 +104,8 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
 
         userService.checkStaff(record.getStaff().getId());
 
-        procedureRepository.deleteAllByMedicalRecordId(recordId);
+        procedureRepository.deleteByMedicalRecordId(recordId);
+        objectiveRepository.deleteAllByMedicalRecordId(recordId);
         recordRepository.deleteById(recordId);
 
         return new MessageResponse(HttpServletResponse.SC_OK, "successfully");
@@ -139,5 +139,30 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
         return new MessageResponse(HttpServletResponse.SC_OK, "successfully");
     }
 
+    public void createListObjectives(List<ObjectivesCreationDTO> objectivesCreationDTOS, MedicalRecord record) {
+        for (ObjectivesCreationDTO creationDTO : objectivesCreationDTOS) {
 
+            Objective objective = objectiveMapper.toEntity(creationDTO);
+            objective.setMedicalRecord(record);
+            objective.setExaminationDate(LocalDate.now());
+
+            Objective objectiveSaved = objectiveRepository.save(objective);
+
+            List<TherapyProcedure> list = therapyProcedureService.mapCreationProcedure(
+                    objectiveSaved, creationDTO.getProcedureCreationDTOList());
+
+            procedureRepository.saveAll(list);
+        }
+    }
+
+    @Override
+    public List<RecordShowDTO> findByToken() {
+
+        User user = userService.getUserByToken();
+        Patient patient = patientRepository.findByUserId(user.getId()).orElseThrow(
+                () -> new ResourceNotFoundException(Collections.singletonMap("message", "user is not existed"))
+        );
+
+        return findByPatientId(patient.getId());
+    }
 }

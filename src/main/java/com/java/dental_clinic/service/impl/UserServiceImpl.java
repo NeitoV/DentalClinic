@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.Email;
 import java.security.SecureRandom;
 import java.util.Collections;
 
@@ -58,12 +59,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public JwtResponseDTO loginUser(LoginDTO loginDTO) {
         User user = userRepository.findByPhoneNumber(loginDTO.getUserName()).orElseThrow(
-                () -> new ResourceNotFoundException(Collections.singletonMap("phone number: ", loginDTO.getUserName()))
+                () -> new ResourceNotFoundException(Collections.singletonMap("phone number", loginDTO.getUserName()))
         );
         String position = null;
         if(user.getRole().getId() == ERole.roleStaff) {
             Staff staff = staffRepository.findByUserId(user.getId()).orElseThrow(
-                    () -> new ResourceNotFoundException(Collections.singletonMap("message: ", "staff isn't exists"))
+                    () -> new ResourceNotFoundException(Collections.singletonMap("message", "staff isn't exists"))
             );
 
             position = staff.getPosition().getName();
@@ -90,7 +91,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User createUser(LoginDTO loginDTO, long roleId) {
         if (userRepository.existsByPhoneNumber(loginDTO.getUserName()))
-            throw new ConflictException(Collections.singletonMap("phone number: ", loginDTO.getUserName()));
+            throw new ConflictException(Collections.singletonMap("phone number:", loginDTO.getUserName()));
 
         User user = userMapper.toEntity(loginDTO);
 
@@ -106,7 +107,7 @@ public class UserServiceImpl implements UserService {
     public User getUserByToken() {
         String phoneNumber = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByPhoneNumber(phoneNumber).orElseThrow(
-                () -> new AccessDeniedException(Collections.singletonMap("message: ", "Not authentication"))
+                () -> new AccessDeniedException(Collections.singletonMap("message", "Not authentication"))
         );
 
         return user;
@@ -115,7 +116,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public MessageResponse sendMailActiveUser(String email) throws MessagingException {
         if(userRepository.existsByEmail(email)) {
-            throw new ConflictException(Collections.singletonMap("email: ", email));
+            throw new ConflictException(Collections.singletonMap("email:", email));
         }
 
         User user = getUserByToken();
@@ -136,11 +137,11 @@ public class UserServiceImpl implements UserService {
     public MessageResponse activeEmail(String email, String otp) {
         User user = getUserByToken();
         if(user.getOtp() == null) {
-            throw new AccessDeniedException(Collections.singletonMap("message: ", "user didn't send mail active"));
+            throw new AccessDeniedException(Collections.singletonMap("message", "user didn't send mail active"));
         }
 
         if(!user.getOtp().equals(otp)) {
-            throw new AccessDeniedException(Collections.singletonMap("message: ", "otp is wrong"));
+            throw new AccessDeniedException(Collections.singletonMap("message", "otp is wrong"));
         }
 
         user.setEmail(email);
@@ -154,7 +155,7 @@ public class UserServiceImpl implements UserService {
         User user = getUserByToken();
 
         if(!checkValidPassword(changePasswordDTO.getOldPassword(), user.getPassword())) {
-            throw new AccessDeniedException(Collections.singletonMap("message: ", "password isn't correct"));
+            throw new AccessDeniedException(Collections.singletonMap("message", "password isn't correct"));
         }
 
         user.setPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
@@ -168,13 +169,52 @@ public class UserServiceImpl implements UserService {
         User user = getUserByToken();
         if(user.getRole().getId() == ERole.roleStaff) {
             Staff staff = staffRepository.findByUserId(user.getId()).orElseThrow(
-                    () -> new ResourceNotFoundException(Collections.singletonMap("message: ", "staff isn't exists"))
+                    () -> new ResourceNotFoundException(Collections.singletonMap("message", "staff isn't exists"))
             );
 
             if(staff.getId() != staffId) {
-                throw new AccessDeniedException(Collections.singletonMap("message: ", "this is not yours"));
+                throw new AccessDeniedException(Collections.singletonMap("message", "this is not yours"));
             }
         }
+    }
+
+    @Override
+    public MessageResponse sendMailForgetPassword(@Email String email) throws MessagingException {
+
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new AccessDeniedException( Collections.singletonMap("email", email))
+        );
+        String otp = generateOTP(OTP_LENGTH);
+
+        user.setOtp(otp);
+        userRepository.save(user);
+
+        String subject = "FORGET PASSWORD";
+        String text = "Your otp: " + otp;
+
+        mailService.send(user.getEmail(), subject, text);
+
+        return new MessageResponse(HttpServletResponse.SC_OK, "check your email");
+    }
+
+    @Override
+    public Boolean checkOTPForgetPassword(String otp, @Email String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new AccessDeniedException( Collections.singletonMap("email", email))
+        );
+
+        return otp.equals(user.getOtp());
+    }
+
+    @Override
+    public MessageResponse changePasswordForget(String newPassword, @Email String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new AccessDeniedException( Collections.singletonMap("email", email))
+        );
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        return new MessageResponse(HttpServletResponse.SC_OK, "successfully");
     }
 
     private Boolean checkValidPassword(String password, String passwordEncoded) {

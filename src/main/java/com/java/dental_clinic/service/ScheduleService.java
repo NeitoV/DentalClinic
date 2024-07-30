@@ -17,5 +17,5 @@ public interface ScheduleService {
 
     MessageResponse confirmScheduleFalse(Long scheduleId) throws MessagingException;
 
-    List<ScheduleDTO> findScheduleByPatient();
+    List<ScheduleDTO> findScheduleByPatient(Boolean isConfirm);
 }

@@ -10,9 +10,8 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RecordCreationDTO {
+public class ObjectivesCreationDTO {
     private String diagnosis;
     private String note;
-    private Long patientId;
-    private List<ObjectivesCreationDTO> objectivesCreationDTOS;
+    private List<ProcedureCreationDTO> procedureCreationDTOList;
 }

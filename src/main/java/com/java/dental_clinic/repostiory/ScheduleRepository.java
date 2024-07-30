@@ -14,10 +14,14 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             "LEFT JOIN s.calendarWorking cw " +
             "WHERE ( cw.staff.id = :staffId OR :staffId = 0) " +
             "AND (s.isConfirm = :isConfirm OR :isConfirm is null)" +
-            "ORDER BY s.date asc")
+            "ORDER BY s.date desc")
     List<Schedule> filter(@Param("staffId") Long staffId, @Param("isConfirm") Boolean isConfirm);
 
-    int countByCalendarWorkingId(Long calendarWorkingId);
+    @Query("SELECT COUNT(s) FROM Schedule s WHERE s.calendarWorking.id = :calendarWorkingId AND s.isConfirm = true")
+    int countByCalendarWorkingIdAndConfirmTrue(@Param("calendarWorkingId") Long calendarWorkingId);
 
-    List<Schedule> findAllByPatientId(Long patientId);
+    @Query("SELECT s FROM Schedule s " +
+            "where s.isConfirm = :isConfirm OR :isConfirm is null " +
+            "and s.patient.id = :patientId")
+    List<Schedule> findForPatient(@Param("patientId") Long patientId, @Param("isConfirm") Boolean isConfirm);
 }

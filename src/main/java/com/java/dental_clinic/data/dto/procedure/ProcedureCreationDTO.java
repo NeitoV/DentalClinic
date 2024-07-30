@@ -1,4 +1,4 @@
-package com.java.dental_clinic.data.dto;
+package com.java.dental_clinic.data.dto.procedure;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

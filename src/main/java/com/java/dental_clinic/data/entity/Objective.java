@@ -5,19 +5,26 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Objectives {
+public class Objective {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", columnDefinition = "NVARCHAR(250)", nullable = false)
-    private String name;
+    @Column(nullable = false)
+    private LocalDate examinationDate;
+    @Column(name = "diagnosis", columnDefinition = "NVARCHAR(250)", nullable = false)
+    private String diagnosis;
 
     @Column(name = "note", columnDefinition = "NVARCHAR(250)")
     private String note;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "medical_record_id", nullable = false)
+    private MedicalRecord medicalRecord;
 }

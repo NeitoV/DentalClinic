@@ -53,7 +53,7 @@ public class PatientServiceImpl implements PatientService {
         if (user.getRole().getId() == ERole.rolePatient && user.getId() != patient.getUser().getId()) {
 
             throw new AccessDeniedException(
-                    Collections.singletonMap("message: ", "You can't  update another user's account"));
+                    Collections.singletonMap("message", "You can't  update another user's account"));
         }
 
         Patient update = patientMapper.toEntity(patientDTO);
@@ -79,7 +79,7 @@ public class PatientServiceImpl implements PatientService {
         User user = userService.getUserByToken();
 
         Patient patient = patientRepository.findByUserId(user.getId()).orElseThrow(
-                () -> new ResourceNotFoundException(Collections.singletonMap("message: ", "user isn't existed"))
+                () -> new ResourceNotFoundException(Collections.singletonMap("message", "user isn't existed"))
         );
 
         return patient;
