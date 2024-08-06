@@ -1,6 +1,9 @@
 package com.java.dental_clinic.controller;
 
+import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
+import com.java.dental_clinic.data.entity.Invoice;
+import com.java.dental_clinic.repostiory.InvoiceRepository;
 import com.java.dental_clinic.service.InvoiceService;
 import com.java.dental_clinic.util.PDFUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -28,37 +31,8 @@ public class InvoiceController {
     private InvoiceService invoiceService;
     @Autowired
     private PDFUtils pdfUtils;
-
-//    @GetMapping("/record/{recordId}")
-//    ResponseEntity<?> getAmountByMedicalRecordId(@PathVariable Long recordId) {
-//
-//        return ResponseEntity.ok(invoiceService.getTotalAmountMedicalRecord(recordId));
-//    }
-
-//    @GetMapping("/export-pdf")
-//    public ResponseEntity<ByteArrayResource> exportPdf() throws IOException, DocumentException {
-//        try {
-//            ByteArrayOutputStream out = pdfUtils.export();
-//            ByteArrayResource resource = new ByteArrayResource(out.toByteArray());
-//
-//            HttpHeaders headers = new HttpHeaders();
-//            headers.add(HttpHeaders.CONTENT_DISPOSITION,
-//                    "attachment; filename=" + System.currentTimeMillis() + ".pdf");
-//            headers.setContentType(MediaType.APPLICATION_PDF);
-//
-//            return ResponseEntity
-//                    .ok()
-//                    .headers(headers)
-//                    .contentLength(resource.contentLength())
-//                    .body(resource);
-//        } catch (DocumentException | IOException e) {
-//            e.printStackTrace();
-//
-//            return ResponseEntity
-//                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-//                    .build();
-//        }
-//    }
+    @Autowired
+    private InvoiceRepository invoiceRepository;
 
     @SecurityRequirement(name = "Bearer Authentication")
     @PreAuthorize("hasAnyAuthority('Role_Admin', 'Role_Staff')")
@@ -107,5 +81,32 @@ public class InvoiceController {
                                        @RequestParam(defaultValue = "0") Long staffId) {
 
         return ResponseEntity.ok(invoiceService.getTotalRevenueByYear(year, staffId));
+    }
+
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PreAuthorize("hasAnyAuthority('Role_Admin', 'Role_Staff')")
+    @PutMapping("/{id}")
+    ResponseEntity<?> updateInvoice(@PathVariable Long id, @RequestBody Map<String, Object> update) {
+        BigDecimal paidDebit = BigDecimal.valueOf(Long.parseLong((String) update.get("paidDebit")));
+
+        return ResponseEntity.ok(invoiceService.updateInvoice(id, paidDebit));
+    }
+
+//    @SecurityRequirement(name = "Bearer Authentication")
+//    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/export-pdf/{objectiveId}")
+    public ResponseEntity<ByteArrayResource> exportPdfInvoiceByObjective(@PathVariable Long objectiveId) throws IOException, DocumentException {
+        ByteArrayResource resource = invoiceService.generatePdfInvoiceByObjective(objectiveId);
+
+        HttpHeaders headers = new HttpHeaders();
+
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=invoice_" + objectiveId + ".pdf");
+        headers.setContentType(MediaType.APPLICATION_PDF);
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .contentLength(resource.contentLength())
+                .body(resource);
     }
 }

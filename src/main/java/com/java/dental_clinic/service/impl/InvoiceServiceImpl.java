@@ -1,5 +1,9 @@
 package com.java.dental_clinic.service.impl;
 
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfWriter;
 import com.java.dental_clinic.data.dto.DentistRevenueDTO;
 import com.java.dental_clinic.data.dto.InvoiceDTO;
 import com.java.dental_clinic.data.dto.MessageResponse;
@@ -11,10 +15,14 @@ import com.java.dental_clinic.repostiory.*;
 import com.java.dental_clinic.service.CalendarWorkingService;
 import com.java.dental_clinic.service.InvoiceService;
 import com.java.dental_clinic.service.MailService;
+import com.java.dental_clinic.util.PDFUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -41,6 +49,8 @@ public class InvoiceServiceImpl implements InvoiceService {
     private StaffMapper staffMapper;
     @Autowired
     private StaffRepository staffRepository;
+    @Autowired
+    private PDFUtils pdfUtils;
 
     @Override
     public BigDecimal getTotalAmountByObjective(Long objectiveId) {
@@ -149,6 +159,45 @@ public class InvoiceServiceImpl implements InvoiceService {
         dentistRevenueDTO.setRevenues(revenues);
 
         return dentistRevenueDTO;
+    }
+
+    @Override
+    public MessageResponse updateInvoice(Long invoiceId, BigDecimal paidDebit) {
+        Invoice invoice = invoiceRepository.findById(invoiceId).orElseThrow(
+                () -> new ResourceNotFoundException(Collections.singletonMap("invoiceId:", invoiceId)));
+
+        invoice.setAmountPaid(invoice.getAmountPaid().add(paidDebit));
+        invoice.setAmountRemaining(invoice.getAmountRemaining().subtract(paidDebit));
+        invoiceRepository.save(invoice);
+
+        return new MessageResponse(HttpServletResponse.SC_OK, "successfully");
+    }
+
+    @Override
+    public ByteArrayResource generatePdfInvoiceByObjective(Long objectiveId) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        Objective objective = objectiveRepository.findById(objectiveId).orElseThrow(
+                () -> new ResourceNotFoundException(Collections.singletonMap("objectiveId:", objectiveId))
+        );
+        List<TherapyProcedure> list = procedureRepository.findAllByObjectiveId(objectiveId);
+
+        try {
+            Document document = new Document();
+            PdfWriter.getInstance(document, out);
+
+            document.open();
+            BaseFont baseFont = pdfUtils.loadBaseFont();
+
+            pdfUtils.addInvoiceContent(document, objective, baseFont, list);
+            document.close();
+
+        } catch (DocumentException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return new ByteArrayResource(out.toByteArray());
     }
 
     private DentistRevenueDTO getRevenue(Long staffId) {
