@@ -1,15 +1,14 @@
 package com.java.dental_clinic.controller;
 
-import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.java.dental_clinic.data.entity.Invoice;
+import com.java.dental_clinic.exception.ResourceNotFoundException;
 import com.java.dental_clinic.repostiory.InvoiceRepository;
 import com.java.dental_clinic.service.InvoiceService;
 import com.java.dental_clinic.util.PDFUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,10 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Map;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -94,13 +92,19 @@ public class InvoiceController {
 
 //    @SecurityRequirement(name = "Bearer Authentication")
 //    @PreAuthorize("isAuthenticated()")
-    @GetMapping("/export-pdf/{objectiveId}")
-    public ResponseEntity<ByteArrayResource> exportPdfInvoiceByObjective(@PathVariable Long objectiveId) throws IOException, DocumentException {
-        ByteArrayResource resource = invoiceService.generatePdfInvoiceByObjective(objectiveId);
+    @GetMapping("/export-pdf/{invoiceId}")
+    public ResponseEntity<ByteArrayResource> exportPdfInvoiceByObjective(@PathVariable Long invoiceId) throws IOException, DocumentException {
 
         HttpHeaders headers = new HttpHeaders();
+        Invoice invoice = invoiceRepository.findById(invoiceId).orElseThrow(
+                () -> new ResourceNotFoundException(Collections.singletonMap("invoiceId:", invoiceId))
+        );
+        ByteArrayResource resource = invoiceService.generatePdfInvoiceByObjective(invoice);
+        String patient = invoice.getObjective().getMedicalRecord().getPatient().getName();
 
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=invoice_" + objectiveId + ".pdf");
+        String fileName = "invoice_" + patient + "_objective_" + invoiceId + ".pdf";
+
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName);
         headers.setContentType(MediaType.APPLICATION_PDF);
 
         return ResponseEntity

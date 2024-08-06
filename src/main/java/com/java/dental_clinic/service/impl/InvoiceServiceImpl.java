@@ -14,7 +14,6 @@ import com.java.dental_clinic.exception.ResourceNotFoundException;
 import com.java.dental_clinic.repostiory.*;
 import com.java.dental_clinic.service.CalendarWorkingService;
 import com.java.dental_clinic.service.InvoiceService;
-import com.java.dental_clinic.service.MailService;
 import com.java.dental_clinic.util.PDFUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -25,7 +24,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -66,14 +64,6 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
 
         return total;
-    }
-
-    @Override
-    public void exportInvoice(Long medicalRecordId) {
-        MedicalRecord medicalRecord = recordRepository.findById(medicalRecordId).orElseThrow(
-                () -> new ResourceNotFoundException(Collections.singletonMap("medical record id", medicalRecordId))
-        );
-        String fileName = medicalRecord.getPatient().getName() + "_" + medicalRecord.getDiagnosis() + ".pdf";
     }
 
     @Override
@@ -174,12 +164,11 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
-    public ByteArrayResource generatePdfInvoiceByObjective(Long objectiveId) {
+    public ByteArrayResource generatePdfInvoiceByObjective(Invoice invoice) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        Objective objective = objectiveRepository.findById(objectiveId).orElseThrow(
-                () -> new ResourceNotFoundException(Collections.singletonMap("objectiveId:", objectiveId))
-        );
-        List<TherapyProcedure> list = procedureRepository.findAllByObjectiveId(objectiveId);
+
+        List<TherapyProcedure> list = procedureRepository.findAllByObjectiveId(invoice.getObjective().getId());
+        Staff staff = invoice.getObjective().getMedicalRecord().getStaff();
 
         try {
             Document document = new Document();
@@ -188,7 +177,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             document.open();
             BaseFont baseFont = pdfUtils.loadBaseFont();
 
-            pdfUtils.addInvoiceContent(document, objective, baseFont, list);
+            pdfUtils.addInvoiceContent(document, invoice, baseFont, list, staff.getName());
             document.close();
 
         } catch (DocumentException e) {
