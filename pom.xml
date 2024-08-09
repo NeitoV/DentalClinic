@@ -22,14 +22,13 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-messaging</artifactId>
-            <version>6.1.11</version>
+            <version>5.3.24</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.springframework/spring-websocket -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-websocket</artifactId>
-            <version>6.1.11</version>
+            <version>5.3.24</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
