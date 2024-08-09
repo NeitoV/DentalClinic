@@ -26,4 +26,6 @@ public interface InvoiceService {
     MessageResponse updateInvoice(Long invoiceId, BigDecimal paidDebit);
 
     ByteArrayResource generatePdfInvoiceByObjective(Invoice invoice);
+
+    MessageResponse deleteInvoice(Long invoiceId);
 }

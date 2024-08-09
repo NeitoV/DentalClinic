@@ -189,6 +189,17 @@ public class InvoiceServiceImpl implements InvoiceService {
         return new ByteArrayResource(out.toByteArray());
     }
 
+    @Override
+    public MessageResponse deleteInvoice(Long invoiceId) {
+        Invoice invoice = invoiceRepository.findById(invoiceId).orElseThrow(
+                () -> new ResourceNotFoundException(Collections.singletonMap("invoiceId:", invoiceId))
+        );
+
+        invoiceRepository.delete(invoice);
+
+        return new MessageResponse(HttpServletResponse.SC_OK, "successfully");
+    }
+
     private DentistRevenueDTO getRevenue(Long staffId) {
         DentistRevenueDTO dentistRevenueDTO = new DentistRevenueDTO();
 

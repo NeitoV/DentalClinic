@@ -85,7 +85,7 @@ public class InvoiceController {
     @PreAuthorize("hasAnyAuthority('Role_Admin', 'Role_Staff')")
     @PutMapping("/{id}")
     ResponseEntity<?> updateInvoice(@PathVariable Long id, @RequestBody Map<String, Object> update) {
-        BigDecimal paidDebit = BigDecimal.valueOf(Long.parseLong((String) update.get("paidDebit")));
+        BigDecimal paidDebit = BigDecimal.valueOf(Long.parseLong(update.get("paidDebit").toString()));
 
         return ResponseEntity.ok(invoiceService.updateInvoice(id, paidDebit));
     }
@@ -93,7 +93,8 @@ public class InvoiceController {
 //    @SecurityRequirement(name = "Bearer Authentication")
 //    @PreAuthorize("isAuthenticated()")
     @GetMapping("/export-pdf/{invoiceId}")
-    public ResponseEntity<ByteArrayResource> exportPdfInvoiceByObjective(@PathVariable Long invoiceId) throws IOException, DocumentException {
+    public ResponseEntity<ByteArrayResource> exportPdfInvoiceByObjective(@PathVariable Long invoiceId)
+            throws IOException, DocumentException {
 
         HttpHeaders headers = new HttpHeaders();
         Invoice invoice = invoiceRepository.findById(invoiceId).orElseThrow(
@@ -112,5 +113,13 @@ public class InvoiceController {
                 .headers(headers)
                 .contentLength(resource.contentLength())
                 .body(resource);
+    }
+
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PreAuthorize("hasAnyAuthority('Role_Admin', 'Role_Staff')")
+    @DeleteMapping("/{invoiceId}")
+    public ResponseEntity<?> deleteInvoice(@PathVariable Long invoiceId) {
+        
+        return ResponseEntity.ok(invoiceService.deleteInvoice(invoiceId));
     }
 }
