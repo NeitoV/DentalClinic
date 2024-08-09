@@ -33,6 +33,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
+
+        if (request.getRequestURI().startsWith("/ws")) {
+            filterChain.doFilter(request, response); // Bỏ qua filter cho WebSocket
+            return;
+        }
+
         try {
             String jwt = parseJwt(request);
 
