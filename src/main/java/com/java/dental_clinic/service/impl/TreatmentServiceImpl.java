@@ -1,9 +1,6 @@
 package com.java.dental_clinic.service.impl;
 
-import com.java.dental_clinic.data.dto.MessageResponse;
-import com.java.dental_clinic.data.dto.ServiceDTO;
-import com.java.dental_clinic.data.dto.TreatmentCreationDTO;
-import com.java.dental_clinic.data.dto.TreatmentDTO;
+import com.java.dental_clinic.data.dto.*;
 import com.java.dental_clinic.data.entity.Treatment;
 import com.java.dental_clinic.data.maper.ServiceMapper;
 import com.java.dental_clinic.data.maper.TreatmentMapper;
@@ -18,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,11 +58,11 @@ public class TreatmentServiceImpl implements TreatmentService {
     }
 
     @Override
-    public MessageResponse createService(ServiceDTO serviceDTO) {
+    public MessageResponseCustom createService(ServiceDTO serviceDTO) {
 
-        serviceRepository.save(serviceMapper.toEntity(serviceDTO));
+        com.java.dental_clinic.data.entity.Service service =  serviceRepository.save(serviceMapper.toEntity(serviceDTO));
 
-        return new MessageResponse(HttpServletResponse.SC_CREATED, "successfully");
+        return new MessageResponseCustom(HttpServletResponse.SC_CREATED, "successfully", service.getId());
     }
 
     @Override

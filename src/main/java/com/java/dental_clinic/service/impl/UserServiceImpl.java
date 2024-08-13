@@ -125,8 +125,8 @@ public class UserServiceImpl implements UserService {
         user.setOtp(otp);
         userRepository.save(user);
 
-        String subject = "CONFIRM EMAIL";
-        String text = "Your otp: " + otp;
+        String subject = "[Nha khoa Võ Tiến] Xác thực email";
+        String text = "Mã xác thực của bạn là: " + otp + ScheduleServiceImpl.emailSignature;
 
         mailService.send(email, subject, text);
 
@@ -189,8 +189,8 @@ public class UserServiceImpl implements UserService {
         user.setOtp(otp);
         userRepository.save(user);
 
-        String subject = "FORGET PASSWORD";
-        String text = "Your otp: " + otp;
+        String subject = "[Nha khoa Võ Tiến] Quên mật khẩu";
+        String text = "Mã xác thực của bạn là: " + otp + ScheduleServiceImpl.emailSignature;
 
         mailService.send(user.getEmail(), subject, text);
 

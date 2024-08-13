@@ -36,9 +36,9 @@ public class InvoiceController {
     @PreAuthorize("hasAnyAuthority('Role_Admin', 'Role_Staff')")
     @PostMapping("")
     ResponseEntity<?> creatInvoice(@RequestBody Map<String, Object> creation) {
-        Long objectiveId = Long.valueOf((String) creation.get("objectiveId"));
+        Long objectiveId = Long.valueOf(creation.get("objectiveId").toString());
         String paymentMethod = (String) creation.get("paymentMethod");
-        BigDecimal amountPaid = BigDecimal.valueOf(Long.parseLong((String) creation.get("amountPaid")));
+        BigDecimal amountPaid = BigDecimal.valueOf(Long.parseLong(creation.get("amountPaid").toString()));
 
         return new ResponseEntity<>(invoiceService.createInvoice(objectiveId, paymentMethod, amountPaid),
                 HttpStatus.CREATED);
@@ -90,8 +90,8 @@ public class InvoiceController {
         return ResponseEntity.ok(invoiceService.updateInvoice(id, paidDebit));
     }
 
-//    @SecurityRequirement(name = "Bearer Authentication")
-//    @PreAuthorize("isAuthenticated()")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/export-pdf/{invoiceId}")
     public ResponseEntity<ByteArrayResource> exportPdfInvoiceByObjective(@PathVariable Long invoiceId)
             throws IOException, DocumentException {
@@ -103,7 +103,7 @@ public class InvoiceController {
         ByteArrayResource resource = invoiceService.generatePdfInvoiceByObjective(invoice);
         String patient = invoice.getObjective().getMedicalRecord().getPatient().getName();
 
-        String fileName = "invoice_" + patient + "_objective_" + invoiceId + ".pdf";
+        String fileName = "HD" + invoiceId + ".pdf";
 
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName);
         headers.setContentType(MediaType.APPLICATION_PDF);

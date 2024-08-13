@@ -17,13 +17,14 @@ import com.java.dental_clinic.service.TherapyProcedureService;
 import com.java.dental_clinic.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class MedicalRecordServiceImpl implements MedicalRecordService {
@@ -77,7 +78,7 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
     }
 
     @Override
-    public List<RecordShowDTO> findByPatientId(Long patientId) {
+    public PaginationDTO findByPatientId(Long patientId, int pageNumber, int pageSize) {
         Patient patient = patientRepository.findById(patientId).orElseThrow(
                 () -> new ResourceNotFoundException(Collections.singletonMap("patient id: ", patientId))
         );
@@ -89,11 +90,11 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
                     Collections.singletonMap("message", "You are not allowed to view someone else's medical records"));
         }
 
-        List<RecordShowDTO> list = recordRepository.findAllByPatientId(patientId).stream().map(
-                medicalRecord -> recordMapper.toDTOShow(medicalRecord)
-        ).collect(Collectors.toList());
+        Page<RecordShowDTO> page = recordRepository.findAllByPatientId(patientId, PageRequest.of(pageNumber, pageSize))
+                .map(medicalRecord -> recordMapper.toDTOShow(medicalRecord));
 
-        return list;
+        return new PaginationDTO(page.getContent(), page.isFirst(), page.isLast(),
+                page.getTotalPages(), page.getTotalElements(), page.getNumber(), page.getSize());
     }
 
     @Override
@@ -156,13 +157,12 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
     }
 
     @Override
-    public List<RecordShowDTO> findByToken() {
-
+    public PaginationDTO findByToken(int pageNumber, int pageSize) {
         User user = userService.getUserByToken();
         Patient patient = patientRepository.findByUserId(user.getId()).orElseThrow(
                 () -> new ResourceNotFoundException(Collections.singletonMap("message", "user is not existed"))
         );
 
-        return findByPatientId(patient.getId());
+        return findByPatientId(patient.getId(), pageNumber, pageSize);
     }
 }

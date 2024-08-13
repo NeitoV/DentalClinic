@@ -7,6 +7,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 import com.java.dental_clinic.data.dto.DentistRevenueDTO;
 import com.java.dental_clinic.data.dto.InvoiceDTO;
 import com.java.dental_clinic.data.dto.MessageResponse;
+import com.java.dental_clinic.data.dto.MessageResponseCustom;
 import com.java.dental_clinic.data.entity.*;
 import com.java.dental_clinic.data.maper.InvoiceMapper;
 import com.java.dental_clinic.data.maper.StaffMapper;
@@ -67,7 +68,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
-    public MessageResponse createInvoice(Long objectiveId, String paymentMethod, BigDecimal amountPaid) {
+    public MessageResponseCustom createInvoice(Long objectiveId, String paymentMethod, BigDecimal amountPaid) {
         Objective objective = objectiveRepository.findById(objectiveId).orElseThrow(
                 () -> new ResourceNotFoundException(Collections.singletonMap("id:", objectiveId))
         );
@@ -82,9 +83,9 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoice.setAmountRemaining(totalAmount.subtract(amountPaid));
         invoice.setObjective(objective);
 
-        invoiceRepository.save(invoice);
+        Invoice saved = invoiceRepository.save(invoice);
 
-        return new MessageResponse(HttpServletResponse.SC_CREATED, "successfully");
+        return new MessageResponseCustom(HttpServletResponse.SC_CREATED, "successfully", saved.getId());
     }
 
     @Override
@@ -152,15 +153,15 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
-    public MessageResponse updateInvoice(Long invoiceId, BigDecimal paidDebit) {
+    public MessageResponseCustom updateInvoice(Long invoiceId, BigDecimal paidDebit) {
         Invoice invoice = invoiceRepository.findById(invoiceId).orElseThrow(
                 () -> new ResourceNotFoundException(Collections.singletonMap("invoiceId:", invoiceId)));
 
         invoice.setAmountPaid(invoice.getAmountPaid().add(paidDebit));
         invoice.setAmountRemaining(invoice.getAmountRemaining().subtract(paidDebit));
-        invoiceRepository.save(invoice);
+        Invoice saved = invoiceRepository.save(invoice);
 
-        return new MessageResponse(HttpServletResponse.SC_OK, "successfully");
+        return new MessageResponseCustom(HttpServletResponse.SC_OK, "successfully", saved.getId());
     }
 
     @Override
@@ -168,7 +169,6 @@ public class InvoiceServiceImpl implements InvoiceService {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         List<TherapyProcedure> list = procedureRepository.findAllByObjectiveId(invoice.getObjective().getId());
-        Staff staff = invoice.getObjective().getMedicalRecord().getStaff();
 
         try {
             Document document = new Document();
@@ -177,7 +177,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             document.open();
             BaseFont baseFont = pdfUtils.loadBaseFont();
 
-            pdfUtils.addInvoiceContent(document, invoice, baseFont, list, staff.getName());
+            pdfUtils.addInvoiceContent(document, invoice, baseFont, list);
             document.close();
 
         } catch (DocumentException e) {

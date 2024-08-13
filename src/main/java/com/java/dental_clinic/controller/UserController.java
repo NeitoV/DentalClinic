@@ -1,6 +1,7 @@
 package com.java.dental_clinic.controller;
 
 import com.java.dental_clinic.data.dto.ChangePasswordDTO;
+import com.java.dental_clinic.data.dto.MessageResponse;
 import com.java.dental_clinic.service.UserService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +24,9 @@ public class UserController {
     @SecurityRequirement(name = "Bearer Authentication")
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/mail/send")
-    public ResponseEntity<?> sendMailActive(@RequestBody Map<String, String> mailConfirm) throws MessagingException {
+    public ResponseEntity<?> sendMailActive(@RequestBody Map<String, String> mailConfirm) throws MessagingException{
         String email = mailConfirm.get("email");
+
 
         return ResponseEntity.ok(userService.sendMailActiveUser(email));
     }

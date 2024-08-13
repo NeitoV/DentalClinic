@@ -48,4 +48,6 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
             "ORDER BY MONTH(i.date) asc")
     List<Object[]> findTotalRevenueByMonthInYear(@Param("year") int year,
                                                  @Param("staffId") Long staffId);
+
+    boolean existsByObjectiveId(Long objectiveId);
 }

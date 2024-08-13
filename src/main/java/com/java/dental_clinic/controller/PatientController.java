@@ -48,4 +48,12 @@ public class PatientController {
 
         return ResponseEntity.ok(patientService.filterPatient(keyword, pageNumber, pageSize));
     }
+
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PreAuthorize("hasAuthority('Role_Patient')")
+    @GetMapping("/token")
+    ResponseEntity<?> getByToken() {
+
+        return ResponseEntity.ok(patientService.getByToken());
+    }
 }

@@ -1,9 +1,6 @@
 package com.java.dental_clinic.service;
 
-import com.java.dental_clinic.data.dto.MessageResponse;
-import com.java.dental_clinic.data.dto.ObjectivesCreationDTO;
-import com.java.dental_clinic.data.dto.RecordCreationDTO;
-import com.java.dental_clinic.data.dto.RecordShowDTO;
+import com.java.dental_clinic.data.dto.*;
 import com.java.dental_clinic.data.entity.MedicalRecord;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,7 +10,7 @@ public interface MedicalRecordService {
     @Transactional
     MessageResponse createMedicalRecord(RecordCreationDTO recordCreationDTO);
 
-    List<RecordShowDTO> findByPatientId(Long patientId);
+    PaginationDTO findByPatientId(Long patientId, int pageNumber, int pageSize);
 
     @Transactional
     MessageResponse deleteRecord(Long recordId);
@@ -24,5 +21,5 @@ public interface MedicalRecordService {
 
     void createListObjectives(List<ObjectivesCreationDTO> objectivesCreationDTOS, MedicalRecord record);
 
-    List<RecordShowDTO> findByToken();
+    PaginationDTO findByToken(int pageNumber, int pageSize);
 }

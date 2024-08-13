@@ -9,8 +9,10 @@ import com.java.dental_clinic.data.entity.User;
 import com.java.dental_clinic.data.enumeration.ERole;
 import com.java.dental_clinic.data.maper.PatientMapper;
 import com.java.dental_clinic.exception.AccessDeniedException;
+import com.java.dental_clinic.exception.ConflictException;
 import com.java.dental_clinic.exception.ResourceNotFoundException;
 import com.java.dental_clinic.repostiory.PatientRepository;
+import com.java.dental_clinic.repostiory.UserRepository;
 import com.java.dental_clinic.service.PatientService;
 import com.java.dental_clinic.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,8 @@ public class PatientServiceImpl implements PatientService {
     private PatientMapper patientMapper;
     @Autowired
     private PatientRepository patientRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public MessageResponse createPatient(PatientCreationDTO patientCreationDTO) {
@@ -57,8 +61,21 @@ public class PatientServiceImpl implements PatientService {
         }
 
         Patient update = patientMapper.toEntity(patientDTO);
-        update.setUser(patient.getUser());
         update.setId(id);
+
+        if (patient.getUser().getPhoneNumber().equals(patientDTO.getPhoneNumber())) {
+            update.setUser(patient.getUser());
+        } else {
+
+            boolean isExist = userRepository.existsByPhoneNumber(patientDTO.getPhoneNumber());
+            if (isExist) {
+                throw new ConflictException(Collections.singletonMap("message", "phone number is existed"));
+            }
+
+            User userUpdate = patient.getUser();
+            userUpdate.setPhoneNumber(patientDTO.getPhoneNumber());
+            update.setUser(userRepository.save(userUpdate));
+        }
 
         patientRepository.save(update);
 
@@ -83,6 +100,12 @@ public class PatientServiceImpl implements PatientService {
         );
 
         return patient;
+    }
+
+    @Override
+    public PatientDTO getByToken() {
+
+        return patientMapper.toDTO(getPatientByToken());
     }
 
 

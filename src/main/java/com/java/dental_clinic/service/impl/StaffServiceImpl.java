@@ -10,9 +10,11 @@ import com.java.dental_clinic.data.entity.User;
 import com.java.dental_clinic.data.enumeration.EPosition;
 import com.java.dental_clinic.data.enumeration.ERole;
 import com.java.dental_clinic.data.maper.StaffMapper;
+import com.java.dental_clinic.exception.ConflictException;
 import com.java.dental_clinic.exception.ResourceNotFoundException;
 import com.java.dental_clinic.repostiory.PositionRepository;
 import com.java.dental_clinic.repostiory.StaffRepository;
+import com.java.dental_clinic.repostiory.UserRepository;
 import com.java.dental_clinic.service.StaffService;
 import com.java.dental_clinic.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,8 @@ public class StaffServiceImpl implements StaffService {
     private PositionRepository positionRepository;
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public MessageResponse createStaff(StaffCreationDTO staffCreationDTO) {
@@ -58,11 +62,29 @@ public class StaffServiceImpl implements StaffService {
         Staff staff = staffRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException(Collections.singletonMap("id: ", id))
         );
+        User user = userService.getUserByToken();
+
+        if (user.getRole().getId() == ERole.roleStaff && staff.getUser().getId() != user.getId()) {
+            throw new ResourceNotFoundException(Collections.singletonMap("message", "You can't update another user's account"));
+        }
 
         Staff update = staffMapper.toEntity(staffDTO);
         update.setPosition(staff.getPosition());
-        update.setUser(staff.getUser());
         update.setId(id);
+
+        if (staffDTO.getPhoneNumber().equals(staff.getUser().getPhoneNumber())) {
+            update.setUser(staff.getUser());
+        } else {
+
+            boolean isExisted = userRepository.existsByPhoneNumber(staffDTO.getPhoneNumber());
+            if (isExisted) {
+                throw new ConflictException(Collections.singletonMap("message", "phone number is existed"));
+            }
+
+            User userStaff = staff.getUser();
+            userStaff.setPhoneNumber(staffDTO.getPhoneNumber());
+            update.setUser(userRepository.save(userStaff));
+        }
 
         staffRepository.save(update);
 
@@ -98,7 +120,6 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     public StaffDTO getStaff() {
-
         Staff staff = getStaffByToken();
 
         return staffMapper.toDTO(staff);

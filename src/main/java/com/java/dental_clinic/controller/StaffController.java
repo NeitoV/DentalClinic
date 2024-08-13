@@ -32,7 +32,7 @@ public class StaffController {
     }
 
     @SecurityRequirement(name = "Bearer Authentication")
-    @PreAuthorize("hasAuthority('Role_Admin')")
+    @PreAuthorize("hasAnyAuthority('Role_Admin', 'Role_Staff')")
     @PutMapping("/{id}")
     public ResponseEntity<?> updateStaff(@RequestBody StaffDTO staffDTO, @PathVariable Long id) {
 

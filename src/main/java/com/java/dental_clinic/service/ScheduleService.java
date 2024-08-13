@@ -1,9 +1,11 @@
 package com.java.dental_clinic.service;
 
 import com.java.dental_clinic.data.dto.MessageResponse;
+import com.java.dental_clinic.data.dto.PaginationDTO;
 import com.java.dental_clinic.data.dto.ScheduleDTO;
 
 import javax.mail.MessagingException;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface ScheduleService {
@@ -11,7 +13,7 @@ public interface ScheduleService {
 
     MessageResponse createScheduleForStaff(Long workingId, String note, Long patientId);
 
-    List<ScheduleDTO> filter(Boolean isConfirm, Long staffId);
+    PaginationDTO filter(Boolean isConfirm, Long staffId, int pageNumber, int pageSize, LocalDate date);
 
     MessageResponse confirmScheduleTrue(Long scheduleId) throws MessagingException;
 

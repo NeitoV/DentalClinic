@@ -14,4 +14,6 @@ public interface PatientService {
     PaginationDTO filterPatient(String keyword, int pageNumber, int pageSize);
 
     Patient getPatientByToken();
+
+    PatientDTO getByToken();
 }

@@ -3,6 +3,7 @@ package com.java.dental_clinic.service;
 import com.java.dental_clinic.data.dto.DentistRevenueDTO;
 import com.java.dental_clinic.data.dto.InvoiceDTO;
 import com.java.dental_clinic.data.dto.MessageResponse;
+import com.java.dental_clinic.data.dto.MessageResponseCustom;
 import com.java.dental_clinic.data.entity.Invoice;
 import org.springframework.core.io.ByteArrayResource;
 
@@ -13,7 +14,7 @@ public interface InvoiceService {
     BigDecimal getTotalAmountByObjective(Long objectiveId);
 
 
-    MessageResponse createInvoice(Long objectiveId, String paymentMethod, BigDecimal amountPaid);
+    MessageResponseCustom createInvoice(Long objectiveId, String paymentMethod, BigDecimal amountPaid);
 
     InvoiceDTO getInvoiceByObjectiveId(Long objectiveId);
 
@@ -23,7 +24,7 @@ public interface InvoiceService {
 
     DentistRevenueDTO getTotalRevenueByYear(int year, Long staffId);
 
-    MessageResponse updateInvoice(Long invoiceId, BigDecimal paidDebit);
+    MessageResponseCustom updateInvoice(Long invoiceId, BigDecimal paidDebit);
 
     ByteArrayResource generatePdfInvoiceByObjective(Invoice invoice);
 

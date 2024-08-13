@@ -17,7 +17,8 @@ public interface WorkingRepository extends JpaRepository<CalendarWorking, Long> 
             "JOIN cw.period p " +
             "WHERE (:date IS NULL OR cw.date = :date) " +
             "AND (:staffName = '' OR s.name LIKE %:staffName%) " +
-            "AND ( p.id = :periodId OR :periodId = 0)")
+            "AND ( p.id = :periodId OR :periodId = 0)" +
+            "AND cw.staff.position.id = 1")
     List<CalendarWorking> filter(
             @Param("date") LocalDate date,
             @Param("staffName") String staffName,

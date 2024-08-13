@@ -3,11 +3,13 @@ package com.java.dental_clinic.controller;
 import com.java.dental_clinic.service.ScheduleService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
+import java.time.LocalDate;
 import java.util.Map;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -42,9 +44,13 @@ public class ScheduleController {
     @PreAuthorize("hasAnyAuthority('Role_Admin', 'Role_Staff')")
     @GetMapping("")
     public ResponseEntity<?> filterSchedule(@RequestParam(required = false) Boolean isConfirm,
-                                            @RequestParam(defaultValue = "0") Long staffId) {
+                                            @RequestParam(defaultValue = "0") Long staffId,
+                                            @RequestParam(defaultValue = "0") int pageNumber,
+                                            @RequestParam(defaultValue = "10") int pageSize,
+                                            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                                                LocalDate date) {
 
-        return ResponseEntity.ok(scheduleService.filter(isConfirm, staffId));
+        return ResponseEntity.ok(scheduleService.filter(isConfirm, staffId, pageNumber, pageSize, date));
     }
 
     @SecurityRequirement(name = "Bearer Authentication")

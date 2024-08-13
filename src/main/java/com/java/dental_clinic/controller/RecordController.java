@@ -27,17 +27,20 @@ public class RecordController {
     @SecurityRequirement(name = "Bearer Authentication")
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/patient/{id}")
-    public ResponseEntity<?> findByPatientId(@PathVariable Long id) {
+    public ResponseEntity<?> findByPatientId(@PathVariable Long id,
+                                             @RequestParam(defaultValue = "0") int pageNumber,
+                                             @RequestParam(defaultValue = "10") int pageSize) {
 
-        return ResponseEntity.ok(medicalRecordService.findByPatientId(id));
+        return ResponseEntity.ok(medicalRecordService.findByPatientId(id, pageNumber, pageSize));
     }
 
     @SecurityRequirement(name = "Bearer Authentication")
     @PreAuthorize("hasAuthority('Role_Patient')")
     @GetMapping("/token")
-    public ResponseEntity<?> findByToken() {
+    public ResponseEntity<?> findByToken(@RequestParam(defaultValue = "0") int pageNumber,
+                                         @RequestParam(defaultValue = "10") int pageSize) {
 
-        return ResponseEntity.ok(medicalRecordService.findByToken());
+        return ResponseEntity.ok(medicalRecordService.findByToken(pageNumber, pageSize));
     }
 
     @SecurityRequirement(name = "Bearer Authentication")
