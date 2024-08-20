@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
@@ -15,13 +17,15 @@ public class Invoice {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private LocalDate date;
+
     private String paymentMethod;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "medical_record_id", nullable = false)
-    private MedicalRecord medicalRecord;
+    @JoinColumn(name = "objective_id", nullable = false)
+    private Objective objective;
 
-    private Float amountPaid;
+    private BigDecimal amountPaid;
 
-    private Float amountRemaining;
+    private BigDecimal amountRemaining;
 }

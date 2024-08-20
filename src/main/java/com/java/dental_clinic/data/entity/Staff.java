@@ -18,9 +18,6 @@ public class Staff {
     @Column(name = "name", columnDefinition = "NVARCHAR(250)", nullable = false)
     private String name;
 
-    @Column(name = "phone_number", columnDefinition = "VARCHAR(11)", nullable = false)
-    private String phoneNumber;
-
     @Column(name = "professional_qualification", columnDefinition = "NVARCHAR(250)")
     private String professionalQualification;
 

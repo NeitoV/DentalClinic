@@ -1,0 +1,32 @@
+package com.java.dental_clinic.service;
+
+import com.java.dental_clinic.data.dto.ChangePasswordDTO;
+import com.java.dental_clinic.data.dto.JwtResponseDTO;
+import com.java.dental_clinic.data.dto.LoginDTO;
+import com.java.dental_clinic.data.dto.MessageResponse;
+import com.java.dental_clinic.data.entity.User;
+
+import javax.mail.MessagingException;
+import javax.validation.constraints.Email;
+
+public interface UserService {
+    JwtResponseDTO loginUser(LoginDTO loginDTO);
+
+    User createUser(LoginDTO loginDTO, long roleId);
+
+    User getUserByToken();
+
+    MessageResponse sendMailActiveUser(@Email String email) throws MessagingException;
+
+    MessageResponse activeEmail(String email, String otp);
+
+    MessageResponse changePassword(ChangePasswordDTO changePasswordDTO);
+
+    void checkStaff(Long staffId);
+
+    MessageResponse sendMailForgetPassword(@Email String email) throws MessagingException;
+
+    Boolean checkOTPForgetPassword(String otp, @Email String email);
+
+    MessageResponse changePasswordForget(String newPassword, @Email String email);
+}

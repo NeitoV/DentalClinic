@@ -16,17 +16,17 @@ public class TherapyProcedure {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private LocalDate examinationDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "treatment_id", nullable = false)
     private Treatment treatment;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "medical_record_id", nullable = false)
-    private MedicalRecord medicalRecord;
+    private int count;
 
     @Column(columnDefinition = "NVARCHAR(250)")
     private String note;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "objectives_id")
+    private Objective objective;
 }

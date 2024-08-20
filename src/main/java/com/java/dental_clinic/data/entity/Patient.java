@@ -18,16 +18,13 @@ public class Patient {
     @Column(name = "name", columnDefinition = "NVARCHAR(250)", nullable = false)
     private String name;
 
-    @Column(name = "name", columnDefinition = "VARCHAR(20)", nullable = false)
+    @Column(name = "birthday", columnDefinition = "VARCHAR(20)", nullable = false)
     private String birthday;
 
     @Column(name = "address", columnDefinition = "NVARCHAR(100)", nullable = false)
     private String address;
 
-    @Column(name = "phone_number", columnDefinition = "VARCHAR(11)", nullable = false)
-    private String phoneNumber;
-
-    private boolean gender;
+//    private boolean gender;
 
     @Column(name = "medical_history", columnDefinition = "NVARCHAR(250)")
     private String medicalHistory;
