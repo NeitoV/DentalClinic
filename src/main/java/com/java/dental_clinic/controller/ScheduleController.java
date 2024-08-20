@@ -46,7 +46,7 @@ public class ScheduleController {
     public ResponseEntity<?> filterSchedule(@RequestParam(required = false) Boolean isConfirm,
                                             @RequestParam(defaultValue = "0") Long staffId,
                                             @RequestParam(defaultValue = "0") int pageNumber,
-                                            @RequestParam(defaultValue = "10") int pageSize,
+                                            @RequestParam(defaultValue = "5") int pageSize,
                                             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
                                                 LocalDate date) {
 

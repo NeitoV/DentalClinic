@@ -12,10 +12,7 @@ import com.java.dental_clinic.data.maper.ProcedureMapper;
 import com.java.dental_clinic.data.maper.RecordMapper;
 import com.java.dental_clinic.exception.AccessDeniedException;
 import com.java.dental_clinic.exception.ResourceNotFoundException;
-import com.java.dental_clinic.repostiory.ObjectiveRepository;
-import com.java.dental_clinic.repostiory.ProcedureRepository;
-import com.java.dental_clinic.repostiory.RecordRepository;
-import com.java.dental_clinic.repostiory.TreatmentRepository;
+import com.java.dental_clinic.repostiory.*;
 import com.java.dental_clinic.service.StaffService;
 import com.java.dental_clinic.service.TherapyProcedureService;
 import com.java.dental_clinic.service.UserService;
@@ -48,6 +45,8 @@ public class TherapyProcedureServiceImpl implements TherapyProcedureService {
     private ObjectiveMapper objectiveMapper;
     @Autowired
     private UserService userService;
+    @Autowired
+    private InvoiceRepository invoiceRepository;
 
     @Override
     public ProcedureRecordShowDTO findByMedicalRecordId(Long recordId) {
@@ -102,6 +101,10 @@ public class TherapyProcedureServiceImpl implements TherapyProcedureService {
                 () -> new ResourceNotFoundException(Collections.singletonMap("procedure id: ", id))
         );
 
+        if (invoiceRepository.existsByObjectiveId(procedure.getObjective().getId())) {
+            throw new AccessDeniedException(Collections.singletonMap("message", "can't update objective has invoice"));
+        }
+
         catchExceptionMedical(procedure.getObjective());
         procedureRepository.delete(procedure);
 
@@ -125,6 +128,10 @@ public class TherapyProcedureServiceImpl implements TherapyProcedureService {
         TherapyProcedure procedure = procedureRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException(Collections.singletonMap("procedure id: ", id))
         );
+
+        if (invoiceRepository.existsByObjectiveId(procedure.getObjective().getId())) {
+            throw new AccessDeniedException(Collections.singletonMap("message", "can't update objective has invoice"));
+        }
 
         catchExceptionMedical(procedure.getObjective());
         TherapyProcedure update = createTherapyProcedure(dto, procedure.getObjective());
@@ -163,6 +170,10 @@ public class TherapyProcedureServiceImpl implements TherapyProcedureService {
 
         if (objective.getMedicalRecord().getStatus().equals(EStatus.DONE.toString())) {
             throw new AccessDeniedException(Collections.singletonMap("message", "can't update record done"));
+        }
+
+        if (invoiceRepository.existsByObjectiveId(objectiveId)) {
+            throw new AccessDeniedException(Collections.singletonMap("message", "can't update objective has invoice"));
         }
 
         List<TherapyProcedure> procedureList = mapCreationProcedure(objective, list);

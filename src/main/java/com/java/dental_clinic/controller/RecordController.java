@@ -29,7 +29,7 @@ public class RecordController {
     @GetMapping("/patient/{id}")
     public ResponseEntity<?> findByPatientId(@PathVariable Long id,
                                              @RequestParam(defaultValue = "0") int pageNumber,
-                                             @RequestParam(defaultValue = "10") int pageSize) {
+                                             @RequestParam(defaultValue = "5") int pageSize) {
 
         return ResponseEntity.ok(medicalRecordService.findByPatientId(id, pageNumber, pageSize));
     }
@@ -38,7 +38,7 @@ public class RecordController {
     @PreAuthorize("hasAuthority('Role_Patient')")
     @GetMapping("/token")
     public ResponseEntity<?> findByToken(@RequestParam(defaultValue = "0") int pageNumber,
-                                         @RequestParam(defaultValue = "10") int pageSize) {
+                                         @RequestParam(defaultValue = "5") int pageSize) {
 
         return ResponseEntity.ok(medicalRecordService.findByToken(pageNumber, pageSize));
     }

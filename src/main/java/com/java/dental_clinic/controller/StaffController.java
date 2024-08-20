@@ -43,7 +43,7 @@ public class StaffController {
     @PreAuthorize("hasAnyAuthority('Role_Admin', 'Role_Staff')")
     @GetMapping("/filter")
     public ResponseEntity<?> filterStaff(@RequestParam(defaultValue = "0") int pageNumber,
-                                         @RequestParam(defaultValue = "10") int pageSize,
+                                         @RequestParam(defaultValue = "5") int pageSize,
                                          @RequestParam(defaultValue = "") String keyword,
                                          @RequestParam(defaultValue = "0") Long positionId) {
 
@@ -54,7 +54,7 @@ public class StaffController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("patient/filter")
     public ResponseEntity<?> filterStaffForPatient(@RequestParam(defaultValue = "0") int pageNumber,
-                                         @RequestParam(defaultValue = "10") int pageSize,
+                                         @RequestParam(defaultValue = "5") int pageSize,
                                          @RequestParam(defaultValue = "") String keyword) {
 
         return ResponseEntity.ok(staffService.filterStaffForPatient(keyword, pageNumber, pageSize));

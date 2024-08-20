@@ -43,7 +43,7 @@ public class ObjectiveController {
     @GetMapping("/record/{id}")
     public ResponseEntity<?> findAllByRecord(@PathVariable Long id,
                                              @RequestParam(defaultValue = "0") int pageNumber,
-                                             @RequestParam(defaultValue = "10") int pageSize,
+                                             @RequestParam(defaultValue = "5") int pageSize,
                                              @RequestParam(required = false) Long objectiveId) {
 
         return ResponseEntity.ok(objectiveService.findAllByRecordId(id, pageNumber, pageSize, objectiveId));

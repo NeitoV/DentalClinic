@@ -3,6 +3,7 @@ package com.java.dental_clinic.controller;
 import com.itextpdf.text.DocumentException;
 import com.java.dental_clinic.data.entity.Invoice;
 import com.java.dental_clinic.exception.ResourceNotFoundException;
+import com.java.dental_clinic.exception.ValidationException;
 import com.java.dental_clinic.repostiory.InvoiceRepository;
 import com.java.dental_clinic.service.InvoiceService;
 import com.java.dental_clinic.util.PDFUtils;
@@ -36,12 +37,17 @@ public class InvoiceController {
     @PreAuthorize("hasAnyAuthority('Role_Admin', 'Role_Staff')")
     @PostMapping("")
     ResponseEntity<?> creatInvoice(@RequestBody Map<String, Object> creation) {
-        Long objectiveId = Long.valueOf(creation.get("objectiveId").toString());
-        String paymentMethod = (String) creation.get("paymentMethod");
-        BigDecimal amountPaid = BigDecimal.valueOf(Long.parseLong(creation.get("amountPaid").toString()));
+        try {
+            Long objectiveId = Long.valueOf(creation.get("objectiveId").toString());
+            String paymentMethod = (String) creation.get("paymentMethod");
+            BigDecimal amountPaid = BigDecimal.valueOf(Long.parseLong(creation.get("amountPaid").toString()));
 
-        return new ResponseEntity<>(invoiceService.createInvoice(objectiveId, paymentMethod, amountPaid),
-                HttpStatus.CREATED);
+            return new ResponseEntity<>(invoiceService.createInvoice(objectiveId, paymentMethod, amountPaid),
+                    HttpStatus.CREATED);
+
+        } catch (Exception e) {
+            throw new ResourceNotFoundException(Collections.singletonMap("objectiveId", creation.get("objectiveId")));
+        }
     }
 
     @SecurityRequirement(name = "Bearer Authentication")
@@ -119,7 +125,7 @@ public class InvoiceController {
     @PreAuthorize("hasAnyAuthority('Role_Admin', 'Role_Staff')")
     @DeleteMapping("/{invoiceId}")
     public ResponseEntity<?> deleteInvoice(@PathVariable Long invoiceId) {
-        
+
         return ResponseEntity.ok(invoiceService.deleteInvoice(invoiceId));
     }
 }

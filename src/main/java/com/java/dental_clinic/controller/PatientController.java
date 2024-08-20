@@ -43,7 +43,7 @@ public class PatientController {
     @PreAuthorize("hasAnyAuthority('Role_Admin', 'Role_Staff')")
     @GetMapping("/filter")
     public ResponseEntity<?> filterPatient(@RequestParam(defaultValue = "0") int pageNumber,
-                                         @RequestParam(defaultValue = "10") int pageSize,
+                                         @RequestParam(defaultValue = "5") int pageSize,
                                          @RequestParam(defaultValue = "") String keyword) {
 
         return ResponseEntity.ok(patientService.filterPatient(keyword, pageNumber, pageSize));
